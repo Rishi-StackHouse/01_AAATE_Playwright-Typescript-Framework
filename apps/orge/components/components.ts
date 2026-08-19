@@ -1,0 +1,8 @@
+/*
+left navi pannel
+toaster message
+warning dialogs
+footer
+header
+hanburger
+*/
