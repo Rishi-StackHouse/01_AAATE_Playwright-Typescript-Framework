@@ -1,0 +1,55 @@
+{
+    "name": "playwright-typescript-Automation-framework",
+    "version": "1.0.0",
+    "description": "Playwright TypeScript Automation Framework",
+    "scripts": {
+        "test": "npx playwright test path/.spec.ts",
+        "multi-test": "npx playwright test .spec.ts .spec.ts",
+        "test:headed": "npx playwright test --headed",
+        "test:debug": "npx playwright test --debug",
+        "test:report": "npx playwright show-report",
+        "test:ui": "npx playwright test --ui",
+        "test:by name": "npx playwright test --grep ['testname']",
+        "test:browser": "npx playwright test --project=chromium",
+        "test:lastFailedOnly": "npx playwright test --last-failed",
+        "report": "playwright show-report",
+        "cucumber": "cucumber-js",
+        "cucumber:report": "cucumber-js --format html:cucumber-report.html",
+        "cucumber:parallel": "cucumber-js --parallel 2",
+        "allure:generate": "allure generate allure-results --clean -o allure-report",
+        "allure:open": "allure open allure-report",
+        "allure:clean": "if exist allure-results rmdir /s /q allure-results && if exist allure-report rmdir /s /q allure-report",
+        "run:tsfile": "npx tsx folder/tsfile 'or' tsx folder/tsfile"
+    },
+    "keywords": [
+        "playwright",
+        "typescript",
+        "automation",
+        "testing"
+    ],
+    "author": "Rishi",
+    "license": "ISC",
+    "devDependencies": {
+        "@cucumber/cucumber": "^13.2.1",
+        "@cucumber/html-formatter": "^22.0.2",
+        "@cucumber/pretty-formatter": "^1.0.1",
+        "@faker-js/faker": "^10.6.0",
+        "@playwright/test": "^1.62.1",
+        "@types/luxon": "^3.7.2",
+        "@types/mssql": "^9.1.8",
+        "@types/node": "^26.2.0",
+        "allure-commandline": "^2.43.0",
+        "allure-cucumberjs": "^3.10.2",
+        "allure-playwright": "^3.10.2",
+        "luxon": "^3.7.2",
+        "tsx": "^4.23.12",
+        "typescript": "^7.0.2"
+    },
+    "dependencies": {
+        "@types/nodemailer": "^8.0.1",
+        "dotenv": "^17.4.2",
+        "mssql": "^12.7.0",
+        "mysql2": "^3.23.3",
+        "nodemailer": "^9.0.5"
+    }
+}

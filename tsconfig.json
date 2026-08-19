@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "commonjs",
+        "lib": [
+            "ES2020"
+        ],
+        "types": [
+            "node"
+        ],
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": false,
+        "resolveJsonModule": true,
+        "outDir": "./dist",
+        "rootDir": "."
+    },
+    "include": [
+        "apps/**/*",
+        "config/**/*",
+        "Depcrecated/**/*",
+        "testsuites/**/*",
+        "playwright.config.ts",
+        "Handson/Coding/Fibonacci.ts",
+        "Handson/Coding/Palindrome.ts",
+        "Handson/Coding/Factorial.ts",
+        "Handson/Coding/Anagram.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "Automation_Playwright"
+    ]
+}
