@@ -5,9 +5,12 @@ object - its a both data type and data structure
 */
 
 /*
-  ======================= Inbuilt ts methods to handle - Arrays =======================
+  ======================= Inbuilt ts methods to handle - Objects =======================
 
   // Accessing keys and values
+  Object.keys(object-name)     // ["firstName", "role", "age", ...] → array of keys
+  Object.values(object-name)   // ["Rishi", "QA Engineer", 26, ...] → array of values
+  Object.entries(object-name)  // [["firstName","Rishi"], ["role","QA Engineer"], ...] → key-value pairs
 
 
   ========================================================================================
@@ -49,6 +52,15 @@ console.log(object.firstName); // Accessing a string value
 console.log(object.age);        
 console.log(object.skills); // Accessing an array value
 console.log(object.address);
+
+console.log('------------------2.Inbuilt Methods----------------');
+console.log(Object.keys(object));
+console.log(Object.values(object));
+console.log(Object.entries(object));
+
+
+
+
 
 
 

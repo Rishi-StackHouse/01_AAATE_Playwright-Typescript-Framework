@@ -1,21 +1,35 @@
 /*
 Purpose of this file:-
-   1. Acts as a configuration layer for credentials for different environments (dev, qa, prod)
+   1. Acts as a configuration layer for credentials for all different environments (dev, qa, prod)
 Problem statement - If we are directly using the .env env variables
                   - Each and every time we need to change it if we want to run tests in a certain environment (dev, qa, prod)
 Solution -
-  1. 1-Complete object that contains nested object for each environment (dev, qa, prod)
-  2. All creds will be injected from .env file into that nested object for (dev, qa, prod) as env variables
-  3. Every level of that nested object is shaped by an interface, so a missing/misspelled key is caught at compile time
-  4. The active env will be picked from .env file and assigned to a variable (ACTIVE_ENV) - defaults to qa (if not found)
-  5. A function accessCreds(appName) will be used to retrieve the creds from the nested objects based on the app Name
-  6. The retrieved creds object will be assigned to a variable and imported used in the page methods
+  1. Create 1-Complete object that contains nested object with each environment credentials (dev, qa, prod) as its properties
+  2. Actual credentials will be injected from .env file as a env variables into this object as keys for the properties
+  2. Tests will be executed in any environment without changing the code, just by changing the ACTIVE_ENV variable in .env file
+
+   As part of this solution,
+   1-Interfaces
+    1.we need to create 4 interfaces for ensuring type safety for each credential (web, api, db, smtp)
+    2.And 1 more interface for creating an enforcement that all the apps hould hold all the 4 credentials together as its properties
+    3.One more Interface for defining a clean application provisioning structure
+
+   2-Type and EnvVariable and Object
+    1.Creating a type for all the environments (dev, qa, prod) for ensuring type safety for the ACTIVE_ENV variable
+    2.Here comes the actual object typed with the EnvName and AppProvision Interface
+      The benefit here is this object is too sensitive since we have nested interfaces if we wrongly provide any key or value iits going to throw a compile error
+      By this way we can reduce the human errors caused unkowingly
+
+   3-Type and Function and export variables
+    1.Creating a type for all the apps (orge, facets) for ensuring type safety for the function
+    2.Creating a function that will take the app name as parameter and check whether the environment has that app or not and return the respective credential/ available app names under that environment
+    3.Finally exporting the function return values as variables for each app and importing them in the page methods
 */
 
-import 'dotenv/config';
-export type EnvName = "dev" | "qa" | "prod";
 
-/* Interface for each stack (web / db / api / smtp) that an app can hold */
+import 'dotenv/config';
+
+//web creds
 export interface WebConfig {
     url: string;
     browser?: "chromium" | "firefox" | "webkit";
@@ -24,24 +38,24 @@ export interface WebConfig {
     username?: string;            // optional - only needed when loginRequired is true
     password?: string;
 }
-
+//db creds
 export interface DbConfig {
     server: string;
     username: string;
     password: string;
 }
-
+//api creds
 export interface ApiConfig {
     baseUrl: string;
     timeout?: number;
     authType?: "bearer" | "basic" | "none";
 }
-
+//smtp creds
 export interface SmtpConfig {
     server: string;
 }
 
-/* Interface for a single app - only web is mandatory, rest of the stacks are optional */
+// App config - interface for an app, To create a enforcement that an app should have all 4 creds configured
 export interface AppConfig {
     web: WebConfig;
     db?: DbConfig;
@@ -49,24 +63,21 @@ export interface AppConfig {
     smtp?: SmtpConfig;
 }
 
-/* Interface for one environment - holds all the apps configured under it */
-export interface AppsDeclaration {
+export interface AppProvision {
     apps: Record<string, AppConfig>;
 }
 
-/*
- Final object with all apps configuration across all the environments.
- 'satisfies' is used here instead of a plain ': Record<EnvName, AppsDeclaration>' annotation -
- it still validates every nested object against the interfaces above, but keeps the literal app
- keys ('orge' | 'facets') intact so the AppName type below stays type safe.
- With a plain annotation the keys would widen to 'string' and accessCreds('typo') would compile.
-*/
-const envCredConfig = {
+export type EnvName = "dev" | "qa" | "prod";
+//Assigning the active env from .env file to a variable - defaults to qa (if not found)
+const ACTIVE_ENV: EnvName = (process.env.ACTIVE_ENV as EnvName) || 'qa';
+
+
+const envCredConfig: Record<EnvName, AppProvision> = {
     dev: {
         apps: {
             orge: {
                 web: {
-                    url: process.env.DEV_ORGE_WEB_URL!,
+                    url: process.env.DEV_ORGE_WEB_URL!, // Compile time error since its not a string as promised so non null
                     browser: "chromium",
                     headless: false,
                     loginRequired: true,
@@ -74,7 +85,7 @@ const envCredConfig = {
                     password: process.env.DEV_ORGE_WEB_PASSWORD!
                 },
                 db: {
-                    server: process.env.DEV_ORGE_DB_SERVER!,
+                    server: process.env.DEV_ORGE_DB_SERVER!, // as - keyword creates a compile time promise
                     username: process.env.DEV_ORGE_DB_USER!,
                     password: process.env.DEV_ORGE_DB_PASSWORD!
                 },
@@ -200,23 +211,16 @@ const envCredConfig = {
             }
         }
     }
-} satisfies Record<EnvName, AppsDeclaration>;
+};
 
-//Assigning the active env from .env file to a variable - defaults to qa (if not found)
-const ACTIVE_ENV: EnvName = (process.env.ACTIVE_ENV as EnvName) || 'qa';
-
-// Creating Type for type checking for the valid app names configured in the object
-type AppName = keyof typeof envCredConfig.dev.apps | // in ts for object, the typeof will returns the full object structure
-               keyof typeof envCredConfig.qa.apps  | // and keyof will return the keys of the object
-               keyof typeof envCredConfig.prod.apps;
+// Type for valid app names - update this when adding/removing apps
+type AppName = "orge" | "facets";
 
 // Retrieve credentials for a given app - validates it exists in active environment
 function accessCreds(appName: AppName): AppConfig {
     const apps = envCredConfig[ACTIVE_ENV].apps;
-    //const yolo:AppName = appName;
     if (appName in apps) {                            // for verifying whether the app is avail for the acive environemnt or not, in this condition the appName will be checked against only the keys of the apps object, since keys are containing the actual data (in operator javascript)
-        return apps[appName  as keyof typeof apps];
-        //return apps[yolo];
+        return apps[appName];
     }
     const availableApps = Object.keys(apps).map(k => `"${k}"`).join(", ");
     throw new Error(`App '${appName}' is not found in '${ACTIVE_ENV}' environment\nAvailable apps in '${ACTIVE_ENV}' environment - ${availableApps}`);

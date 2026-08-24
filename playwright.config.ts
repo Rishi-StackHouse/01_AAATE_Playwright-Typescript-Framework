@@ -1,12 +1,8 @@
 import 'dotenv/config';
 import { defineConfig, devices } from "@playwright/test";
-import path from 'path';
 
-// Trust Zscaler root CA certificate for HTTPS interception
+// Bypass SSL certificate validation (for corporate proxy/Zscaler)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-if (!process.env.NODE_EXTRA_CA_CERTS) {
-  process.env.NODE_EXTRA_CA_CERTS = path.resolve(__dirname, 'zscaler-root-ca.pem');
-}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
