@@ -4,10 +4,11 @@ Purpose of this file:-
   2. Extends BasePage class directly for base actions and implements enforced abstract methods
   */
 
-import { Page, Locator, Response, expect } from '@playwright/test';
+import { Page, Response, expect } from '@playwright/test';
+import { orgeCreds } from '../../../../config/config'; 
 import { BasePage } from '../../../BasePage';
 import { orgeLoginLoc } from './orgeLoginLoc';
-import { orgeCreds } from '../../../../config/config'; 
+
 
 export class orgeLoginPage extends BasePage {
 
@@ -62,10 +63,10 @@ export class orgeLoginPage extends BasePage {
         await expect.soft(this.loc.passwordRequiredError, 'Password required error should not be visible').not.toBeVisible();
     }
     async openORGE(): Promise<Response | null> {
-        return this.navigateToURL(orgeCreds.web.url!);
+        return this.navigateToURL(orgeCreds.web.url);
     }
     async getLoginPageURL(): Promise<string> {
-        return this.getURL(orgeCreds.web.url!);
+        return this.getURL(orgeCreds.web.url);
     }
     async getDashboardPageURL(): Promise<string> {
         return this.getURL('https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index');

@@ -1,36 +1,31 @@
-/* Second Largest - Find and return the second largest number in an array
-   using single-pass iteration (O(n) time complexity) */
+// Second Largest - Find and return the second largest number in an array
 
 console.log('*************Second Largest******************');
 function findSecondLargest(arr: number[]): number | null {
-    // 1. Ignore empty / missing input
-    if (!arr) return null;
 
-    // count length manually
+    /* 1. count length of array manually, since iteration needed for finding the second largest element
+          if its < 2 return null (not a proper array) */
     let len = 0;
-    for (; arr[len] !== undefined; len++) { /* count items */ }
-
-    // 2. need at least 2 elements to have a second largest
+    for (; arr[len] !== undefined; len++) {}
     if (len < 2) return null;
 
-    // 3. initialize first and second largest
+    // 2. assume the first element is the largest, second as null (unknown yet)
     let first = arr[0];
     let second: number | null = null;
 
-    // 4. single pass - track top two values
+    /* 3. compare with every other element with the assumed ones
+          if its greater than first, update second as previous first and update first with new largest .e
+          else if its less than first but greater than second, update second */
     for (let i = 1; i < len; i++) {
         if (arr[i] > first) {
-            // current element becomes new largest
-            // old largest becomes second largest
             second = first;
             first = arr[i];
-        } else if (arr[i] < first) {
-            // current is not largest, but might be second
+        }    
+        else if (arr[i] < first) {
             if (second === null || arr[i] > second) {
                 second = arr[i];
             }
         }
-        // if arr[i] === first, skip it (we want distinct second largest)
     }
 
     return second;
@@ -46,55 +41,53 @@ console.log(findSecondLargest([1]));                        // null (not enough 
 
 /**************************************************************************************/
 
-/* Remove Second Largest - Find and remove the second largest number from an array
-   Returns a new array without the first occurrence of the second largest value */
+// Remove Second Largest - Find and remove the second largest number from an array
+
 
 console.log('*************Remove Second Largest******************');
-function removeSecondLargest(arr: number[]): number[] {
-    // 1. Ignore empty / missing input
-    if (!arr) return [];
+function removeSecondLargest(arr: number[]): [number[], number | null] {
 
-    // count length manually
+    /* 1. count length of array manually, since iteration needed for finding the second largest element
+          if its < 2 return original array with null (nothing to remove) */
     let len = 0;
-    for (; arr[len] !== undefined; len++) { /* count items */ }
+    for (; arr[len] !== undefined; len++) {}
+    if (len < 2) return [arr, null];
 
-    // 2. need at least 2 elements to have a second largest
-    if (len < 2) return [...arr];   // return copy, nothing to remove
-
-    // 3. find first and second largest with their indices
+    // 2. assume the first element is the largest and track indices for removal
     let first = arr[0];
     let firstIndex = 0;
     let second: number | null = null;
     let secondIndex = -1;
 
+    /* 3. compare with every other element with the assumed ones
+          if its greater than first, demote first to second (with indices) and update first
+          else if its less than first but greater than second, update second and its index */
     for (let i = 1; i < len; i++) {
         if (arr[i] > first) {
-            // current becomes new largest
-            // old largest becomes second largest
             second = first;
             secondIndex = firstIndex;
             first = arr[i];
             firstIndex = i;
-        } else if (arr[i] < first) {
-            // might be second largest
+        } 
+        else if (arr[i] < first) {
             if (second === null || arr[i] > second) {
                 second = arr[i];
                 secondIndex = i;
             }
         }
-        // if arr[i] === first, skip (want distinct second)
     }
 
-    // 4. if no second largest found, return copy of original
+    // 4. if no second largest found (all elements are same), return copy of original array with null
     if (secondIndex === -1) {
         const copy: number[] = [];
         for (let i = 0; i < len; i++) {
             copy[i] = arr[i];
         }
-        return copy;
+        return [copy, null];
     }
 
-    // 5. build new array without the second largest element
+    /* 5. build a new array and set an iterator, iterate through the original array and
+          copy all elements to the new array except the one at secondIndex, return the result */
     const result: number[] = [];
     let resultLen = 0;
 
@@ -105,7 +98,7 @@ function removeSecondLargest(arr: number[]): number[] {
         }
     }
 
-    return result;
+    return [result, second];
 }
 
 console.log(removeSecondLargest([3, 1, 4, 1, 5, 9, 2, 6]));   // [3,1,4,1,5,9,2] (6 removed)
@@ -113,6 +106,5 @@ console.log(removeSecondLargest([10, 20, 30, 40, 50]));       // [10,20,30,50] (
 console.log(removeSecondLargest([-5, -2, -10, -1]));          // [-5,-10,-1] (-2 removed)
 console.log(removeSecondLargest([7, 7, 7]));                  // [7,7,7] (no distinct second)
 console.log(removeSecondLargest([5, 10]));                    // [10] (5 removed)
-console.log(removeSecondLargest([1]));                        // [1] (not enough elements)
-
+console.log(removeSecondLargest([1]));                        // [1] (not enough elements)                   
 /**************************************************************************************/

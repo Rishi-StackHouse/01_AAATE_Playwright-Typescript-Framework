@@ -1,31 +1,40 @@
 /*
-Purpose of this file:-
-   1. Acts as a configuration layer for credentials for all different environments (dev, qa, prod)
-Problem statement - If we are directly using the .env env variables
-                  - Each and every time we need to change it if we want to run tests in a certain environment (dev, qa, prod)
-Solution -
-  1. Create 1-Complete object that contains nested object with each environment credentials (dev, qa, prod) as its properties
-  2. Actual credentials will be injected from .env file as a env variables into this object as keys for the properties
-  2. Tests will be executed in any environment without changing the code, just by changing the ACTIVE_ENV variable in .env file
+--------------------------------------------------------------------------------
+PROBLEM STATEMENTS
+--------------------------------------------------------------------------------
+1. If there is no centralized configuration management,
+Maintainability will be hard (Need to hunt down for any small changes to be done in the env variable)  
+No Visibility of all the app creds.
 
-   As part of this solution,
-   1-Interfaces
-    1.we need to create 4 interfaces for ensuring type safety for each credential (web, api, db, smtp)
-    2.And 1 more interface for creating an enforcement that all the apps hould hold all the 4 credentials together as its properties
-    3.One more Interface for defining a clean application provisioning structure
+2. If we directly use the env-variables inside the page methods, then we cant robustly run the tests in one specific environment.
+  We need to change the respective environment's variables in the page methods each and every time.  
 
-   2-Type and EnvVariable and Object
-    1.Creating a type for all the environments (dev, qa, prod) for ensuring type safety for the ACTIVE_ENV variable
-    2.Here comes the actual object typed with the EnvName and AppProvision Interface
-      The benefit here is this object is too sensitive since we have nested interfaces if we wrongly provide any key or value iits going to throw a compile error
-      By this way we can reduce the human errors caused unkowingly
+3. Need to ensure type safety for the configuration layer, so that any property mismatch is caught at compile time (By automation engineers).
 
-   3-Type and Function and export variables
-    1.Creating a type for all the apps (orge, facets) for ensuring type safety for the function
-    2.Creating a function that will take the app name as parameter and check whether the environment has that app or not and return the respective credential/ available app names under that environment
-    3.Finally exporting the function return values as variables for each app and importing them in the page methods
+--------------------------------------------------------------------------------
+SOLUTION / APPROACH
+--------------------------------------------------------------------------------
+1. Creating a centralized configuration object (one single big nested object) containing all the app credentials env variables
+  for each environment (DEV, QA, PROD).
+  - Direct visibility of all the app credentials.
+  - Easy Maintainability - If any change is needed, we can change it in one place and it will be reflected in all the test/page methods.
+
+2. I’m going to use a TypeScript function that:
+    * Determines the active environment (DEV/QA/PROD) from the environment variable.
+    * Accepts the app name as a parameter and resolves the corresponding app credentials from the configuration object for the active environment.
+    * Captures the returned object as a variable, exports it, and uses it within the page methods.  
+
+3. This file leverages TypeScript constructs such as interfaces, types, and Records to ensure type safety across the configuration layer.
+    Interfaces
+     * Separate interfaces are defined for each credential type:(Web, * API, * DB, * SMTP)
+     * This ensures the property mismatch is caught at compile time. (By automation engineers)
+    Types
+     * Type to restrict the environment: Restricts the supported environments to only DEV, QA, and PROD, preventing accidental configuration of unsupported environments.
+     * Type to restrict the app names: Restricts app names to the supported applications and used as a data type annotation for the function's parameter.
+    Record
+     * Used to map each environment to its corresponding application configuration while maintaining type safety.
+     * To maintain a clean pattern - since many details comes into the picture
 */
-
 
 import 'dotenv/config';
 
@@ -33,8 +42,8 @@ import 'dotenv/config';
 export interface WebConfig {
     url: string;
     browser?: "chromium" | "firefox" | "webkit";
-    headless?: boolean;
-    loginRequired?: boolean;      // set false for apps that have no login, #url authentication
+    headless: boolean;
+    loginRequired: boolean;      // set false for apps that have no login, #url authentication
     username?: string;            // optional - only needed when loginRequired is true
     password?: string;
 }
@@ -54,7 +63,7 @@ export interface ApiConfig {
 export interface SmtpConfig {
     server: string;
 }
-
+/*************************************************************************************************************************/
 // App config - interface for an app, To create a enforcement that an app should have all 4 creds configured
 export interface AppConfig {
     web: WebConfig;
@@ -229,3 +238,15 @@ function accessCreds(appName: AppName): AppConfig {
 /* Apps access final values of creds */
 export const orgeCreds = accessCreds('orge');
 export const facetsCreds = accessCreds('facets');
+
+
+
+/*
+
+Interface
+
+Type
+
+Record
+
+*/

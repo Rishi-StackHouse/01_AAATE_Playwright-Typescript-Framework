@@ -2,34 +2,46 @@
    number missing, find and return that missing number */
 
 console.log('*************Find Missing Number******************');
-function findMissingNumber(arr: number[]): number {
-    // 1. Ignore empty / missing input
-    if (!arr) return -1;
+function findMissingNumber(arr: number[]): number | null {
 
-    // count length manually
+    // 1. count length
     let len = 0;
-    for (; arr[len] !== undefined; len++) { /* count items */ }
+    for (; arr[len] !== undefined; len++) { }
 
-    // 2. the full range is 1..N, where N = len + 1 (because one number is missing)
-    const n = len + 1;
+    // 2. find min and max in the array
+    let min = arr[0];
+    let max = arr[0];
+    for (let i = 1; i < len; i++) {
+        if (arr[i] < min) { 
+            min = arr[i]; 
+        }
+        if (arr[i] > max) { 
+            max = arr[i]; 
+        }
+    }
 
-    // 3. add up what the sum SHOULD be for 1 + 2 + ... + n
+    // 3. expected sum from min to max
     let expectedSum = 0;
-    for (let i = 1; i <= n; i++) {
+    for (let i = min; i <= max; i++) {
         expectedSum = expectedSum + i;
     }
 
-    // 4. add up what the array ACTUALLY contains
+    // 4. actual sum
     let actualSum = 0;
     for (let i = 0; i < len; i++) {
         actualSum = actualSum + arr[i];
     }
 
-    // 5. the difference is the missing number
-    return expectedSum - actualSum;
+    // 5. difference is the missing number (null if none missing)
+    const missing = expectedSum - actualSum;
+    if (missing === 0) {
+        return null;
+    } else {
+        return missing;
+    }
 }
 
-console.log(findMissingNumber([1, 2, 4, 5, 6]));        // 3
+console.log(findMissingNumber([1, 5, 4, 2, 6]));        // 3
 console.log(findMissingNumber([2, 3, 4, 5]));           // 1
 console.log(findMissingNumber([1, 2, 3, 4]));           // 5
 console.log(findMissingNumber([1, 3]));                 // 2

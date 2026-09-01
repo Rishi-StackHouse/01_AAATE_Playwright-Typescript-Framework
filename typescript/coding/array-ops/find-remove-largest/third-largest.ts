@@ -1,46 +1,40 @@
-/* Third Largest - Find and return the third largest number in an array
-   using single-pass iteration (O(n) time complexity) */
+// Third Largest - Find and return the third largest number in an array
 
 console.log('*************Third Largest******************');
 function findThirdLargest(arr: number[]): number | null {
-    // 1. Ignore empty / missing input
-    if (!arr) return null;
 
-    // count length manually
+    /* 1. count length of array manually, since iteration needed for finding the third largest element
+          if its < 3 return null (not a proper array) */
     let len = 0;
-    for (; arr[len] !== undefined; len++) { /* count items */ }
-
-    // 2. need at least 3 elements to have a third largest
+    for (; arr[len] !== undefined; len++) {}
     if (len < 3) return null;
 
-    // 3. initialize first, second, and third largest
+    // 2. assume the first element is the largest, second and third as null (unknown yet)
     let first = arr[0];
     let second: number | null = null;
     let third: number | null = null;
 
-    // 4. single pass - track top three values
+    /* 3. compare with every other element with the assumed ones
+          if its greater than first, demote first to second, second to third, and update first
+          else if its less than first but greater than second, demote second to third and update second
+          else if its less than second but greater than third, update third */
     for (let i = 1; i < len; i++) {
         if (arr[i] > first) {
-            // current element becomes new largest
-            // cascade: first -> second -> third
             third = second;
             second = first;
             first = arr[i];
-        } else if (arr[i] < first) {
-            // might be second or third largest
+        } 
+        else if (arr[i] < first) {
             if (second === null || arr[i] > second) {
-                // becomes new second largest
                 third = second;
                 second = arr[i];
-            } else if (arr[i] < second) {
-                // might be third largest
+            } 
+            else if (arr[i] < second) {
                 if (third === null || arr[i] > third) {
                     third = arr[i];
                 }
             }
-            // if arr[i] === second, skip it (we want distinct values)
         }
-        // if arr[i] === first, skip it (we want distinct third largest)
     }
 
     return third;
@@ -57,28 +51,18 @@ console.log(findThirdLargest([1, 2, 2, 3, 3, 3]));         // 1
 
 /**************************************************************************************/
 
-/* Remove Third Largest - Find and remove the third largest number from an array
-   Returns a new array without the first occurrence of the third largest value */
+// Remove Third Largest - Find and remove the third largest number from an array
 
 console.log('*************Remove Third Largest******************');
 function removeThirdLargest(arr: number[]): number[] {
-    // 1. Ignore empty / missing input
-    if (!arr) return [];
 
-    // count length manually
+    /* 1. count length of array manually, since iteration needed for finding the third largest element
+          if its < 3 return original array (nothing to remove) */
     let len = 0;
-    for (; arr[len] !== undefined; len++) { /* count items */ }
+    for (; arr[len] !== undefined; len++) {}
+    if (len < 3) return arr;
 
-    // 2. need at least 3 elements to have a third largest
-    if (len < 3) {
-        const copy: number[] = [];
-        for (let i = 0; i < len; i++) {
-            copy[i] = arr[i];
-        }
-        return copy;   // return copy, nothing to remove
-    }
-
-    // 3. find first, second, and third largest with their indices
+    // 2. assume the first element is the largest and track indices for removal
     let first = arr[0];
     let firstIndex = 0;
     let second: number | null = null;
@@ -86,36 +70,36 @@ function removeThirdLargest(arr: number[]): number[] {
     let third: number | null = null;
     let thirdIndex = -1;
 
+    /* 3. compare with every other element with the assumed ones
+          if its greater than first, demote first to second, second to third (with indices) and update first
+          else if its less than first but greater than second, demote second to third and update second
+          else if its less than second but greater than third, update third and its index */
     for (let i = 1; i < len; i++) {
         if (arr[i] > first) {
-            // cascade: first -> second -> third
             third = second;
             thirdIndex = secondIndex;
             second = first;
             secondIndex = firstIndex;
             first = arr[i];
             firstIndex = i;
-        } else if (arr[i] < first) {
-            // might be second or third largest
+        } 
+        else if (arr[i] < first) {
             if (second === null || arr[i] > second) {
-                // becomes new second largest
                 third = second;
                 thirdIndex = secondIndex;
                 second = arr[i];
                 secondIndex = i;
-            } else if (arr[i] < second) {
-                // might be third largest
+            } 
+            else if (arr[i] < second) {
                 if (third === null || arr[i] > third) {
                     third = arr[i];
                     thirdIndex = i;
                 }
             }
-            // if arr[i] === second, skip (want distinct values)
         }
-        // if arr[i] === first, skip (want distinct values)
     }
 
-    // 4. if no third largest found, return copy of original
+    // 4. if no third largest found (all elements are same), return copy of original array
     if (thirdIndex === -1) {
         const copy: number[] = [];
         for (let i = 0; i < len; i++) {
@@ -124,7 +108,8 @@ function removeThirdLargest(arr: number[]): number[] {
         return copy;
     }
 
-    // 5. build new array without the third largest element
+    /* 5. build a new array and set an iterator, iterate through the original array and
+          copy all elements to the new array except the one at thirdIndex, return the result */
     const result: number[] = [];
     let resultLen = 0;
 
